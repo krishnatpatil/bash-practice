@@ -1,0 +1,13 @@
+pytest
+pytest-cov
+pytest-mock
+pylint
+pep8
+flake8
+coverage
+pathlib
+configparser
+mysqlclient
+xmltodict
+requests
+gitpython
