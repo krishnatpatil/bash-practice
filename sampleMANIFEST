@@ -1,0 +1,8 @@
+DELIVERABLENAME=sample-project-name
+RPMNAME=sample-rpm-name
+RPMDIR=.
+BUILDSRC=false
+ARCH=noarch
+ROLE=role
+AUDITREPORTINCLUSION=False
+DEPLOYMENTSERVERS=TBD

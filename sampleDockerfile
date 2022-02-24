@@ -1,0 +1,20 @@
+FROM docker.hub.com/alpine
+
+# Maintainer
+LABEL maintainer="test@example.com>"
+
+USER root
+
+# Create required users, groups and directories
+RUN groupadd test                                                   && \
+    useradd -g test test                                            && \
+    mkdir /apps .pylint.d                                           && \
+    chmod -R 777 /apps .pylint.d
+
+# Copy required files to the container
+COPY tools/sample.repo tools/test-requirements.txt /apps/
+
+# Install dependency packages
+RUN yum install -y mariadb103-devel unixODBC-devel openldap-devel    && \
+    yum install -c /apps/silo.repo -y python_2_7_14                  && \
+    pip install -r /apps/test-requirements.txt

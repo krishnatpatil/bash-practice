@@ -1,0 +1,47 @@
+pipeline {
+    agent none
+    stages {
+        stage('Test') {
+            agent {
+                dockerfile {
+                    filename "Dockerfile"
+                }
+            }
+            steps {
+                withVaultCredentials {
+                    sh "vault kv get --field=data --format=yaml secret/it-git/credentials/cred-audit/dbcreds >> TestServiceConfig.txt"
+                    sh "vault kv get --field=data --format=yaml secret/it-git/credentials/cred-audit/apicreds >> TestServiceConfig.txt"
+                }
+                sh "tools/check.sh"
+            }
+        }
+        stage('Sonar') {
+            agent any
+            steps {
+                sonarScan(sonarServer: "Sonar")
+            }
+        }
+        stage('Build') {
+            agent {
+                docker {
+                    image "docker.hub.com/alpine"
+                }
+            }
+            when {
+                branch "master"
+            }
+            steps {
+                sh "tools/build.sh"
+            }
+        }
+        stage('Deploy') {
+            agent any
+            when {
+                branch "master"
+            }
+            steps {
+                sh "tools/deploy.sh"
+            }
+        }
+    }
+}

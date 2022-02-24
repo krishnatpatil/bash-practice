@@ -1,0 +1,65 @@
+#----------------------------------------------------------------------
+# NAME:
+#	Makefile
+#
+# USAGE:
+#	make		## all == realclean + rpmbuild + clean
+#	make check	## Run CoDE check manually - heighliner check (equivalent) - Suitable for Jenkins + SonarQube + CDAnalytics
+#	make coverage	## Run test suite with HTML code coverage
+#	make run	## Run from this build directory (if appropriate)
+#	make test	## Run test suite without code coverage
+#	make sign	## Sign the RPM
+#	make deploy	## upload RPM to target yum repos (up to 4 roles)
+#	make clean	## Clean all artifacts except the RPM.
+#	make realclean	## Clean ALL artifacts, including the RPM.
+#
+# DESCRIPTION:
+#	Clarify App vs CoDE build scripts by using the .PHONY tags
+
+include MANIFEST
+include VERSION
+include RELEASE
+
+FILES = \
+
+.PHONY: CoDE App
+
+all: realclean rpmbuild clean
+
+rpmbuild: App
+	cd `pwd`; rpmbuild --buildroot `pwd`/BUILDROOT/$(RPMNAME) \
+		--define "_topdir `pwd`" \
+		-vv -ba `pwd`/SPECS/$(RPMNAME).spec \
+		--define "RPMNAME $(RPMNAME)" \
+		--define "DELIVERABLENAME $(DELIVERABLENAME)" \
+		--define "RPMDIR /" \
+		--define "BUILDSRC false" \
+		--define "ARCH ${ARCH}" \
+		--define "VERSION $(VERSION)" \
+		--define "RELEASE $(RELEASE)"
+	cp `pwd`/RPMS/${ARCH}/*.rpm .
+
+check: CoDE
+	cd `pwd`; sh tools/check.sh
+
+run: App
+	cd `pwd`; sh tools/sample-run.sh ${RPMNAME}-${VERSION}-${RELEASE}.${ARCH}.rpm
+
+test: App
+	cd `pwd`; sh tools/sample-test.sh ${RPMNAME}-${VERSION}-${RELEASE}.${ARCH}.rpm
+
+coverage: App
+	cd `pwd`; sh tools/sample-coverage.sh ${RPMNAME}-${VERSION}-${RELEASE}.${ARCH}.rpm
+
+deploy: App
+	cd `pwd`; sh tools/sample-deploy.sh $(ROLE) $(ROLE2) $(ROLE3) $(ROLE4)
+
+sign: App
+	cd `pwd`; sh tools/sample-sign.sh $(RPMDIR)/$(RPMNAME)-$(VERSION)-$(RELEASE).$(ARCH).rpm
+
+clean: App
+	cd `pwd`; sh tools/sample-clean.sh
+
+realclean: App
+	cd `pwd`; sh tools/sample-clean.sh realclean
+
