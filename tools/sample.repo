@@ -1,0 +1,5 @@
+[sample-repository]
+name=IT - packages - $basearch
+baseurl=http://eir-yum-bootstrap.test.com/yum/SILO/production/RPMS
+enabled=yes
+gpgcheck=0
